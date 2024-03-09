@@ -13,9 +13,9 @@ interpreter
 How to use the command Interpreter(Console)
 ===========================================
 - The command Interpreter is started by running the console.py script.
-- After starting the interpreter, you can write the command <help> to see the
+- After starting the interpreter, you can write the command *help* to see the
 available commands and if you want to know what each command does you just type 
-the command <help> <command>.
+the command *help command*.
 Example:
 $ ./console.py
 (hbnb) help CreateObj
