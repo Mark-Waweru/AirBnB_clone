@@ -22,9 +22,12 @@ Documented commands (type help <topic>):
 ========================================
 EOF  help  quit
 
+(hbnb)
 (hbnb) help quit
-Closes/exits the command interpreter
-(hbnb) exit
-Bye
+Quit command to exit the program
+
+(hbnb)
+(hbnb)
+(hbnb) quit
 $
 ```
