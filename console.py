@@ -4,6 +4,7 @@ the entry point of the command interpreter'''
 import cmd
 from models.base_model import BaseModel
 from models import storage
+import re
 
 
 class HBNBCommand(cmd.Cmd):
@@ -16,132 +17,186 @@ class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb)"
 
     def do_create(self, cmd_line):
-        class_name = cmd_line.split()
-        if not cmd_line:
+        '''create: Creates a new instance of BaseModel
+        and saves it (to the JSON file) and prints the id
+
+        Args:
+            cmd_line (str): The input command
+        '''
+        args = cmd_line.split()
+        if len(args) == 0:
             print("** class name missing **")
+            return
+
+        class_name = args[0]
 
         try:
             class_obj = globals()[class_name]
         except KeyError:
             print("** class doesn't exist **")
+            return
 
         new_obj = class_obj()
         new_obj.save()
         print("{}".format(new_obj.id))
 
     def do_show(self, cmd_line):
+        ''' Prints the string representation of an instance based on
+        class name and id.
+
+        Args:
+            cmd_line (str): The input command
+        '''
         args = cmd_line.split()
-        class_name = args[0]
-        if len(args) == 0:
+        if len(args) < 1:
             print("** class name missing **")
+            return
 
-        try:
-            class_obj = globals()[class_name]
-        except:
+        class_name = args[0]
+
+        if class_name not in globals():
             print("** class doesn't exist **")
+            return
 
-        if len(args) == 1:
+        if len(args) < 2:
             print("** instance id missing **")
+            return
 
-        search_obj = "{}.{}".format(args[0], args[1])
+        obj_id = args[1]
+
+        search_obj = "{}.{}".format(class_name, obj_id)
         all_objs = storage.all()
-        found_obj = False
-        
-        for obj_key in all_objs.keys():
-            if search_obj == obj_key:
-                obj = all_objs[obj_key]
-                print(obj)
-                found_obj = True
-                break
-            
-        if not found_obj:
+
+        if search_obj in all_objs:
+            obj = all_objs[search_obj]
+            print(obj)
+        else:
             print("** no instance found **")
-            
+
     def do_destroy(self, cmd_line):
+        '''Deletes an instance based on the class name and id
+        and (save the changes into the JSON file).
+
+        Args:
+            cmd_line (str): The input command
+        '''
         args = cmd_line.split()
-        class_name = args[0]
         if len(args) == 0:
             print("** class name missing **")
-        
-        try:
-            class_obj = globals()[class_name]
-        except:
+            return
+
+        class_name = args[0]
+
+        if class_name not in globals():
             print("** class doesn't exist **")
+            return
 
-        if len(args) == 1:
+        if len(args) < 2:
             print("** instance id missing **")
+            return
 
-        search_obj = "{}.{}".format(args[0], args[1])
+        obj_id = args[1]
+        search_obj = "{}.{}".format(class_name, obj_id)
         all_objs = storage.all()
-        found_obj = False
 
-        for obj_key in all_objs.keys():
-            if search_obj == obj_key:
-                del(all_objs[obj_key])
-                storage.save()
-                break
-
-        if not found_obj:
+        if search_obj in all_objs:
+            del(all_objs[search_obj])
+            storage.save()
+        else:
             print("** no instance found **")
 
     def do_all(self, cmd_line):
+        '''Prints all string representation of all instances based
+        or not on the class name.
+
+        Args:
+            cmd_line (str): The input command
+        '''
         args = cmd_line.split()
-        args[0] = class_name
-        try:
-            class_obj = globals()[class_name]
-        except:
-            print("** class doesn't exist **")
-
-        all_objs = storage.all()
-        for obj_key in all_objs.keys():
-            obj = all_objs[obj_key]
-            print(obj)
-
-            
-    def do_update(self, cmd_line):
-        args = cmd_line.split()
-        all_objs = storage.all()
-        search_obj = "{}.{}".format(args[0], args[1])
-        all_objs = storage.all()
-        upd_obj = None
-        found_object = False
-        for obj_key in all_objs.keys():
-            if search_obj == obj_key:
-                upd_obj = all_objects[obj_key]
-                found_obj = True
-                break
-
-        if len(args) == 0:
-            print("** class name missing **")
-
-        try:
-            class_obj = globals()[class_name]
-        except:
-            print("** class doesn't exist **")
-
+        objs_filtered = {}
         if len(args) == 1:
-            print("** instance id missing **")
-        elif not found_obj:
-            print("** no instance found **")
-        elif len(args) == 2:
-            print("** attribute name missing **")
-        elif len(args) == 3:
-            print("** value missing **")
-        
-        upd_att = args[2]
-        upd_val = arg[3]
-        for key, value in upd_obj.items():
-            if upd_obj[upd_att] == "id":
-                print("** You cannot update id attribute **")
-            elif upd_obj[upd_att] == "created_at":
-                print("** You cannot update created_at attribute **")
-            elif upd_obj[upd_att] == "updated_at":
-                print("** You cannot update updated_at attribute **")
-            
-            if upd_obj[key] == upd_att:
-                k = upd_obj[key]
-                if isinstance(k, int):
+            class_name = args[0]
+            if class_name not in globals():
+                print("** class doesn't exist **")
+                return
 
+            all_objs = storage.all()
+            for key, obj in all_objs.items():
+                if key.startswith(class_name):
+                    objs_filtered[key] = obj
+        elif len(args) == 0:
+            objs_filtered = storage.all()
+
+        obj_string = [str(obj) for obj in objs_filtered.values()]
+
+        print(obj_string)
+
+    def do_update(self, cmd_line):
+        '''updates an instance based on the class name and id
+        by adding or updating attribute (save the change into the JSON file).
+
+        Args:
+            cmd_line (str): The input command
+        '''
+        args = cmd_line.split()
+
+        if len(args) < 1:
+            print("** class name missing **")
+            return
+
+        class_name = args[0]
+
+        if class_name not in globals():
+            print("** class doesn't exist **")
+            return
+
+        if len(args) < 2:
+            print("** instance id missing **")
+            return
+
+        obj_id = args[1]
+        all_objs = storage.all()
+
+        search_obj = "{}.{}".format(class_name, obj_id)
+
+        if search_obj not in all_objs:
+            print("** no instance found **")
+            return
+
+        upd_obj = all_objs[search_obj]
+
+        if len(args) < 3:
+            print("** attribute name missing **")
+            return
+
+        if len(args) < 4:
+            print("** value missing **")
+            return
+
+        upd_att = args[2]
+        upd_val = args[3]
+
+        if upd_att in ["id", "created_at", "updated_at"]:
+            print("** You cannot update {} attribute **".format(upd_att))
+            return
+
+        if hasattr(upd_obj, upd_att):
+            setattr(upd_obj, upd_att, type(getattr(upd_obj, upd_att))(upd_val))
+        else:
+            if upd_val.startswith('"') and upd_val.endswith('"'):
+                setattr(upd_obj, upd_att, upd_val[1:-1])
+            else:
+                try:
+                    num_val = int(upd_val)
+                except ValueError:
+                    try:
+                        num_val = float(upd_val)
+                    except ValueError:
+                        print("The value must be a string, integer or float")
+
+                setattr(upd_obj, upd_att, num_val)
+
+        storage.save()
 
     def do_quit(self, cmd_line):
         '''Handles exit or quit when the user enters the command quit'''
@@ -154,6 +209,37 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         '''Handles an emptyline plus + ENTER by not executing anything'''
         pass
+
+    def help_create(self):
+        '''help coomand for create'''
+        print("Creates a new instance of BaseModel")
+        print("saves it (to the JSON file) and prints the id\n")
+        print("Example:\n$ create BaseModel")
+
+    def help_show(self):
+        '''Help command for show'''
+        print("Prints the string representation of an instance based on")
+        print("the class name and id\n")
+        print("Example:\n$ show BaseModel 1234-1234-1234")
+
+    def help_destroy(self):
+        '''Help command for destroy'''
+        print("Deletes an instance based on the class name and id")
+        print("and (save the change into the JSON file)\n")
+        print("Example:\n$ destroy BaseModel 1234-1234-1234")
+
+    def help_all(self):
+        '''Help command for all'''
+        print("Prints all string representation of all instances")
+        print("based or not on the class name.\n")
+        print("Example:\n$ all BaseModel\nor\n$ all")
+
+    def help_update(self):
+        '''Help command for update'''
+        print("Updates an instance based on the class name and id by adding")
+        print("or updating attribute (save the changes into the JSON file).\n")
+        print("Example:")
+        print("$ update BaseModel 1234-1234-1234 email \"aibnb@mail.com\"")
 
     def help_quit(self):
         '''The help for quit command'''
