@@ -4,7 +4,7 @@ the entry point of the command interpreter'''
 import cmd
 from models.base_model import BaseModel
 from models import storage
-import re
+from models.user import User
 
 
 class HBNBCommand(cmd.Cmd):
@@ -181,10 +181,49 @@ class HBNBCommand(cmd.Cmd):
             return
 
         if hasattr(upd_obj, upd_att):
-            setattr(upd_obj, upd_att, type(getattr(upd_obj, upd_att))(upd_val))
+            existing_att = getattr(upd_obj, upd_att)
+            if isinstance(existing_att, str) and\
+                    (upd_val.startswith('"') and upd_val.endswith('"')):
+                upd_val = upd_val.strip('"')
+                setattr(
+                        upd_obj, upd_att,
+                        type(getattr(upd_obj, upd_att))(upd_val)
+                        )
+                storage.save()
+                return
+            elif isinstance(existing_att, int) and\
+                    (not upd_val.startswith('"') and
+                        not upd_val.endswith('"')):
+                setattr(
+                        upd_obj, upd_att,
+                        type(getattr(upd_obj, upd_att))(upd_val)
+                        )
+                storage.save()
+                return
+            elif isinstance(existing_att, float) and\
+                    (not upd_val.startswith('"') and
+                        not upd_val.endswith('"')):
+                setattr(
+                        upd_obj, upd_att,
+                        type(getattr(upd_obj, upd_att))(upd_val)
+                        )
+                storage.save()
+                return
+            else:
+                if isinstance(existing_att, str):
+                    print(
+                        f"TypeError({upd_att} must be a string in \"\" quotes)"
+                        )
+                elif isinstance(existing_att, int):
+                    print(f"TypeError({upd_att} must be an integer value)")
+                elif isinstance(existing_att, float):
+                    print(
+                        f"TypeError({upd_att} must be an float/decimal value)"
+                        )
+
         else:
             if upd_val.startswith('"') and upd_val.endswith('"'):
-                setattr(upd_obj, upd_att, upd_val[1:-1])
+                setattr(upd_obj, upd_att, upd_val.strip('"'))
             else:
                 try:
                     num_val = int(upd_val)
@@ -193,10 +232,10 @@ class HBNBCommand(cmd.Cmd):
                         num_val = float(upd_val)
                     except ValueError:
                         print("The value must be a string, integer or float")
+                        return
 
                 setattr(upd_obj, upd_att, num_val)
-
-        storage.save()
+                storage.save()
 
     def do_quit(self, cmd_line):
         '''Handles exit or quit when the user enters the command quit'''
