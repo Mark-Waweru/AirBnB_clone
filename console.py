@@ -10,6 +10,7 @@ from models.city import City
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
+import re
 
 
 class HBNBCommand(cmd.Cmd):
@@ -20,6 +21,45 @@ class HBNBCommand(cmd.Cmd):
         prompt (str): The prompt name for the console
     '''
     prompt = "(hbnb)"
+
+    def precmd(self, line):
+        '''This method is used to manipulate the command before execution
+        It checks if there is a <class_name>.<method()>format or match
+        If true it manipulates the command to run the specific do_method
+        If False it returns the line without altering it
+
+        Args:
+            line (str): The input command
+
+        Returns:
+            new_line (str): A <do_method> <class_name> <arguments> format
+        '''
+        match = re.search(r"^(\w*)\.(\w+)(?:\(([^)]*)\))$", line)
+        if not match:
+            return line
+
+        class_name = match.group(1)
+        do_method = match.group(2)
+        args = match.group(3)
+        if args:
+            arguments = args.split(', ')
+            frm_arguments = []
+            print(arguments)
+            for arg in arguments:
+                if arg.isdigit() or (
+                        all(char.isdigit() or char == '-' for char in arg)
+                        ):
+                    frm_arguments.append(int(arg))
+                else:
+                    frm_arguments.append(f'{arg}')
+
+            print(frm_arguments)
+            new_line = "{} {} {}".format(
+                    do_method, class_name, ' '.join(frm_arguments)
+                    )
+            return new_line
+        else:
+            return "{} {}".format(do_method, class_name)
 
     def do_create(self, cmd_line):
         '''create: Creates a new instance of BaseModel
@@ -119,6 +159,7 @@ class HBNBCommand(cmd.Cmd):
         '''
         args = cmd_line.split()
         objs_filtered = {}
+
         if len(args) == 1:
             class_name = args[0]
             if class_name not in globals():
@@ -256,38 +297,53 @@ class HBNBCommand(cmd.Cmd):
 
     def help_create(self):
         '''help coomand for create'''
-        print("Creates a new instance of BaseModel")
-        print("saves it (to the JSON file) and prints the id\n")
-        print("Example:\n$ create BaseModel")
+        print(
+            "Creates a new instance of BaseModel"
+            "saves it (to the JSON file) and prints the id\n"
+            "Usage:\n$ create <class name>"
+            )
 
     def help_show(self):
         '''Help command for show'''
-        print("Prints the string representation of an instance based on")
-        print("the class name and id\n")
-        print("Example:\n$ show BaseModel 1234-1234-1234")
+        print(
+            "Prints the string representation of an instance based on"
+            "the class name and id\n"
+            "Usage:\n$ show <class name> <instance id>"
+            )
 
     def help_destroy(self):
         '''Help command for destroy'''
-        print("Deletes an instance based on the class name and id")
-        print("and (save the change into the JSON file)\n")
-        print("Example:\n$ destroy BaseModel 1234-1234-1234")
+        print(
+            "Deletes an instance based on the class name and id"
+            "and (save the change into the JSON file)\n"
+            "Usage:\n$ destroy <class name> <instance id>"
+            )
 
     def help_all(self):
         '''Help command for all'''
-        print("Prints all string representation of all instances")
-        print("based or not on the class name.\n")
-        print("Example:\n$ all BaseModel\nor\n$ all")
+        print(
+            "Prints all string representation of all instances"
+            "based or not on the class name.\n"
+            "Usage:\n$ all <class name>\nor\n$ all\n"
+            "or\n$ <class name>.all()"
+            )
 
     def help_update(self):
         '''Help command for update'''
-        print("Updates an instance based on the class name and id by adding")
-        print("or updating attribute (save the changes into the JSON file).\n")
-        print("Example:")
-        print("$ update BaseModel 1234-1234-1234 email \"aibnb@mail.com\"")
+        print(
+            "Updates an instance based on the class name and id by adding"
+            "or updating attribute (save the changes into the JSON file).\n"
+            "Usage:"
+            "$ update <class name> <instance id> <attribute name> "
+            "<attribute value>"
+            )
 
     def help_quit(self):
         '''The help for quit command'''
-        print("Quit command to exit the program\n")
+        print(
+            "Quit command to exit the program\n"
+            "Usage:\n$ quit"
+            )
 
 
 if __name__ == "__main__":
