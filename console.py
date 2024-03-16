@@ -53,7 +53,7 @@ class HBNBCommand(cmd.Cmd):
                 value = arguments[2]
                 frm_arguments.append(value)
             elif len(arguments) == 2:
-                obj_id = arguments[0] 
+                obj_id = arguments[0]
                 frm_arguments.append(obj_id.strip('"'))
                 attValue_dict = arguments[1]
                 frm_arguments.append(attValue_dict)
@@ -290,6 +290,33 @@ class HBNBCommand(cmd.Cmd):
                 setattr(upd_obj, upd_att, num_val)
                 storage.save()
 
+    def do_count(self, cmd_line):
+        '''Counts the number of instance of a class
+
+        Args:
+            cmd_line (str): The input command
+        '''
+        args = cmd_line.split()
+        if len(args) == 0:
+            print("** class name missing **")
+            return
+
+        class_name = args[0]
+
+        try:
+            class_obj = globals()[class_name]
+        except KeyError:
+            print("** class doesn't exist **")
+            return
+
+        count = 0
+        all_objs = storage.all()
+        for key, obj in all_objs.items():
+            if key.startswith(class_name):
+                count += 1
+
+        print(f"{count}")
+
     def do_quit(self, cmd_line):
         '''Handles exit or quit when the user enters the command quit'''
         return True
@@ -316,6 +343,8 @@ class HBNBCommand(cmd.Cmd):
             "Prints the string representation of an instance based on"
             "the class name and id\n"
             "Usage:\n$ show <class name> <instance id>"
+            "or\n"
+            "$ <class name>.show(\"<instance id>\")"
             )
 
     def help_destroy(self):
@@ -324,6 +353,8 @@ class HBNBCommand(cmd.Cmd):
             "Deletes an instance based on the class name and id"
             "and (save the change into the JSON file)\n"
             "Usage:\n$ destroy <class name> <instance id>"
+            "or\n"
+            "$ <class name>.destroy(\"<instance id>\")"
             )
 
     def help_all(self):
@@ -340,9 +371,22 @@ class HBNBCommand(cmd.Cmd):
         print(
             "Updates an instance based on the class name and id by adding"
             "or updating attribute (save the changes into the JSON file).\n"
-            "Usage:"
+            "Usage:\n"
             "$ update <class name> <instance id> <attribute name> "
-            "<attribute value>"
+            "<attribute value>\n"
+            "or\n"
+            "$ <class name>.update(\"<instance id>\", <\"attribute name\">, "
+            "<attribute value>)"
+            )
+
+    def help_count(self):
+        '''Help command for count'''
+        print(
+            "Counts the number of instances a class has\n"
+            "Usage:\n"
+            "$ count <class name>\n"
+            "or\n"
+            "$ <class name>.count()"
             )
 
     def help_quit(self):
