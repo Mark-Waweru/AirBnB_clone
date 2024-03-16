@@ -41,19 +41,26 @@ class HBNBCommand(cmd.Cmd):
         class_name = match.group(1)
         do_method = match.group(2)
         args = match.group(3)
+
         if args:
             arguments = args.split(', ')
             frm_arguments = []
-            print(arguments)
-            for arg in arguments:
-                if arg.isdigit() or (
-                        all(char.isdigit() or char == '-' for char in arg)
-                        ):
-                    frm_arguments.append(int(arg))
-                else:
-                    frm_arguments.append(f'{arg}')
+            if len(arguments) > 2:
+                obj_id = arguments[0]
+                frm_arguments.append(obj_id.strip('"'))
+                att_name = arguments[1]
+                frm_arguments.append(att_name.strip('"'))
+                value = arguments[2]
+                frm_arguments.append(value)
+            elif len(arguments) == 2:
+                obj_id = arguments[0] 
+                frm_arguments.append(obj_id.strip('"'))
+                attValue_dict = arguments[1]
+                frm_arguments.append(attValue_dict)
+            else:
+                obj_id = arguments[0]
+                frm_arguments.append(obj_id.strip('"'))
 
-            print(frm_arguments)
             new_line = "{} {} {}".format(
                     do_method, class_name, ' '.join(frm_arguments)
                     )
