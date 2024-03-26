@@ -1,0 +1,25 @@
+body {
+    margin: 0;
+    padding: 0;
+    color: #484848;
+    font-size: 14px;
+    font-family: Circular,"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+}
+
+@media screen and (max-width: 768px) {
+    body {
+        width: 95%; /* Adjust container width for smaller screens */
+    }
+}
+
+/* Example of a media query for even smaller screens */
+@media screen and (max-width: 480px) {
+    body {
+        width: 100%; /* Adjust container width for very small screens */
+    }
+}
