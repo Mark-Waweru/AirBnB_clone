@@ -33,8 +33,8 @@ class Test_BaseModel(unittest.TestCase):
         '''This method test if id is a valid UUID4'''
         self.assertIsInstance(self.test_model.id, str)
         uuid_pattern = re.compile(
-        r'^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-'
-        r'[89abAB][a-f0-9]{3}-[a-f0-9]{12}$'
+            r'^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-'
+            r'[89abAB][a-f0-9]{3}-[a-f0-9]{12}$'
         )
         self.assertTrue(uuid_pattern.match(self.test_model.id))
 
@@ -42,13 +42,13 @@ class Test_BaseModel(unittest.TestCase):
         '''This method test that created_at is a datetime and close to now'''
         self.assertIsInstance(self.test_model.created_at, datetime)
         self.assertAlmostEqual(self.test_model.created_at, datetime.now(),
-                delta = timedelta(seconds = 1))
+                               delta=timedelta(seconds=1))
 
     def test_updated_at(self):
         '''This method test that updated_at is a datetime and close to now'''
         self.assertIsInstance(self.test_model.updated_at, datetime)
         self.assertAlmostEqual(self.test_model.updated_at, datetime.now(),
-                delta = timedelta(seconds = 1))
+                               delta=timedelta(seconds=1))
 
     def test_str_method(self):
         '''This method test the BaseModel __str__ method if it outputs
@@ -67,7 +67,7 @@ class Test_BaseModel(unittest.TestCase):
         self.test_model.save()
         self.assertGreater(self.test_model.updated_at, old_updated_at)
         self.assertAlmostEqual(self.test_model.updated_at, datetime.now(),
-            delta = timedelta(seconds = 1))
+                               delta=timedelta(seconds=1))
 
     def test_to_dict_method(self):
         '''This method tests the BaseModel to_dict method to ensure it returns
@@ -76,11 +76,11 @@ class Test_BaseModel(unittest.TestCase):
         obj_dict = self.test_model.to_dict()
         self.assertEqual(obj_dict["id"], self.test_model.id)
         self.assertEqual(obj_dict["__class__"],
-            self.test_model.__class__.__name__)
+                         self.test_model.__class__.__name__)
         self.assertEqual(obj_dict["created_at"],
-            self.test_model.created_at.isoformat())
+                         self.test_model.created_at.isoformat())
         self.assertEqual(obj_dict["updated_at"],
-            self.test_model.updated_at.isoformat())
+                         self.test_model.updated_at.isoformat())
         self.assertIsInstance(obj_dict["created_at"], str)
         self.assertIsInstance(obj_dict["updated_at"], str)
 
@@ -88,6 +88,7 @@ class Test_BaseModel(unittest.TestCase):
         '''This tearDown method deletes the instances of the BaseModel class
         '''
         del self.test_model
+
 
 if __name__ == "__main__":
     unittest.main()

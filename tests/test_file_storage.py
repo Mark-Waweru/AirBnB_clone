@@ -29,11 +29,11 @@ class Test_FileStorage(unittest.TestCase):
         self.child_obj.number = 200
 
         self.base_key = "{}.{}".format(self.base_model_obj.__class__.__name__,
-                self.base_model_obj.id)
+                                       self.base_model_obj.id)
         self.child_key = "{}.{}".format(self.child_obj.__class__.__name__,
-                self.child_obj.id)
+                                        self.child_obj.id)
 
-        self.temp_file = tempfile.NamedTemporaryFile(delete = False)
+        self.temp_file = tempfile.NamedTemporaryFile(delete=False)
         '''This line assigns the temp_file_path the path to the temp file'''
         self.temp_file_path = self.temp_file.name
         self.temp_file.close()
@@ -42,16 +42,15 @@ class Test_FileStorage(unittest.TestCase):
         self.original_file_path = storage._FileStorage__file_path
         storage._FileStorage_file_path = self.temp_file_path
 
-
     def test_new_method(self):
         '''Tests if the new method saves the new objects inside the __objects
         attribute dictionary in the right way and also if it is accurate
         '''
         self.assertIn(self.child_key, storage._FileStorage__objects)
         self.assertEqual(storage._FileStorage__objects[self.base_key],
-                self.base_model_obj)
+                         self.base_model_obj)
         self.assertEqual(storage._FileStorage__objects[self.child_key],
-                self.child_obj)
+                         self.child_obj)
 
     def test_all_method(self):
         '''Test the all method if it returns the objects created and if
@@ -62,7 +61,6 @@ class Test_FileStorage(unittest.TestCase):
         self.assertEqual(all_objects[self.child_key], self.child_obj)
         self.assertEqual(len(all_objects), 2)
 
-        
     '''def test_save_method(self):
         This method tests if the save method serializes the objects well
         self.base_model_obj.save()
@@ -75,8 +73,6 @@ class Test_FileStorage(unittest.TestCase):
         self.assertIn(self.child_key, data)
         self.assertEqual(data[self.base_key], self.base_model_obj.to_dict())
         self.assertEqual(data[self.child_key], self.child_obj.to_dict())'''
-        
-
 
     def test_reload(self):
         '''Tests the reload method if it desirializes the json file well'''
@@ -88,9 +84,9 @@ class Test_FileStorage(unittest.TestCase):
         self.assertIn(self.base_key, storage._FileStorage__objects)
         self.assertIn(self.child_key, storage._FileStorage__objects)
         self.assertEqual(storage._FileStorage__objects[self.base_key].
-                to_dict(), self.base_model_obj.to_dict())
+                         to_dict(), self.base_model_obj.to_dict())
         self.assertEqual(storage._FileStorage__objects[self.child_key].
-                to_dict(), self.child_obj.to_dict())
+                         to_dict(), self.child_obj.to_dict())
 
 
 if __name__ == "__main__":

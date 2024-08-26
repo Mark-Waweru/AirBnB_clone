@@ -152,7 +152,7 @@ class HBNBCommand(cmd.Cmd):
         all_objs = storage.all()
 
         if search_obj in all_objs:
-            del(all_objs[search_obj])
+            del (all_objs[search_obj])
             storage.save()
         else:
             print("** no instance found **")
